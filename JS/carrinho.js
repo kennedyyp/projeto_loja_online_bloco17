@@ -1,16 +1,3 @@
-/* ============================================================
-   carrinho.js — Bloco 17
-   Coloque em: JS/carrinho.js
-   Adicione antes de </body> em TODAS as páginas:
-   <script src="JS/carrinho.js"></script>
-============================================================ */
-
-/* ============================================================
-   BLOCO 1 — CATÁLOGO DE PRODUTOS
-   Para adicionar produto novo: copie um bloco { } e cole abaixo.
-   No botão da página de produtos use:
-   onclick="adicionarAoCarrinho(ID_DO_PRODUTO)"
-============================================================ */
 const CATALOGO = [
   {
     id: 1,
@@ -41,8 +28,7 @@ const CATALOGO = [
    0.10 = 10% de desconto, 0.20 = 20%, etc.
 ============================================================ */
 const CUPONS = {
-  "BLOCO10": 0.10,
-  "BLOCO20": 0.20
+  "KENNY": 0.20
 }
 
 /* ============================================================
