@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Bloco 17</title>
+    <link rel="shortcut icon" href="#" type="image/x-icon">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    
+    <link rel="stylesheet" href="styles/login.css">
+</head>
+<body>
+
+
+    <main class="login">
+        <div class="login_content">
+            <div>
+                <h2 class="login_title">Eae 17's🐀</h2>
+                <form action="php/login.php" method="post" class="login_form">
+                    <div class="login_group">
+                        <div class="login_box">
+                            <i class="ri-mail-fill login_icon"></i>
+                            <input type="email"  autocomplete="off" required placeholder="Email" class="login_input" id="email"  name="email">   
+                            <label for="email" class="login_label">Email</label>
+                        </div>
+
+                         <div class="login_box">
+                            <i class="ri-lock-2-fill login_icon"></i>
+                            <input type="password"  autocomplete="off" required placeholder="Senha" class="login_input" id="password"  name="senha">   
+                            <label for="password" class="login_label">Senha</label>
+                        </div>
+                    </div>
+
+                    <a href="#" class="login_forgot">Esqueceu a senha?</a>
+
+                    <button type="submit" class="login_button" name="acessar">
+                        Acessar <i class="ri-send-plane-2-fill"></i>
+                    </button>
+
+                    <p class="login_sign">Não tem uma conta? <a href="cadrastro1.html">Cadastre-se</a></p>
+                </form>
+            </div>
+
+            <div class="login_image">
+                <img src="imgs/login_centreal_bloco17.png" alt="" class="login_img">
+            </div>
+        </div>     
+    </main>
+
+    
+                            <!-- GSAP bliblioteca pra anima-->
+        <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/gsap.min.js"></script>
+
+
+
+        <script src="JS/loginani.js"></script>
+</body>
+</html>

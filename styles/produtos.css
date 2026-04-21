@@ -1,0 +1,288 @@
+root{
+
+/* Color - Bloco 17 (Underground Streetwear) */
+
+--first-color: #C1121F;        /* vermelho alerta (ações, botões, destaque) */
+--first-color-alt: #8E0E16;    /* vermelho mais escuro (hover/efeito) */
+
+--border-color: #6B6B6B;       /* cinza concreto (bordas e separações) */
+
+--title-color: #F2F2F2;        /* branco sujo (títulos e destaque) */
+
+--text-color: #B8B8B8;         /* cinza claro (texto secundário) */
+
+--body-color: #0F0F0F;         /* preto asfalto (fundo principal) */
+
+--container-color: #1A1A1A;    /* preto elevado (cards, seções) */
+
+        /*Fonte e tipografia*/
+    --body-font: 'Urbanist', sans-serif;
+    --big-font-size: 1.5rem;
+    --normal-font-size: .938rem;
+    --small-font-size: .813rem;
+
+
+}
+
+
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    list-style: none;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        min-width: 100vw;
+        background-color: #1A1A1A;
+        color: white;
+        font-family: Arial, Helvetica, sans-serif;
+        overflow-x: hidden;
+        overflow-y: visible;
+    }
+
+    header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    align-content: center;
+    width: 100%;
+    height: 90px;
+    position: fixed;
+    top: 0;
+    z-index: 9999;
+    background-color: #1A1A1A;
+    padding: 0px 20px;
+}
+.logo{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 20px;
+}
+
+.logo img{
+    height: 50px;
+    width: 40px;
+    margin: 10px;
+}
+
+.search{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 20px;
+    width: 50%;
+}
+.search input {
+    color: white;
+    border: 2px solid rgb(255, 255, 255);
+    border-radius: 15px;
+    height: 40px;
+    width: 100%;
+    background: transparent;
+    outline: none;
+    text-align: center;
+}
+nav{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 30px;
+}
+nav a{
+    font-size: 1.2em;
+    margin: 5px;
+    text-decoration: none;
+    color: white;
+}
+
+
+nav a:hover{
+    font-size: 1.3em;
+    border-bottom: 2px solid black;
+  
+}
+
+  
+    /* ── HERO ── */
+    .sabe {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 6rem 2rem 2rem;
+    }
+    .sabe h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 42px;
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+    .sabe p { 
+        font-size: 13px;
+         color: #888; 
+        font-weight: 500;}
+
+    
+
+    /* ── GRADE DE PRODUTOS ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1px;
+      margin: 0 2rem;
+      padding-bottom: 5rem;
+    
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: #fff;
+      cursor: pointer;
+      justify-content: end;
+      transition: background .15s;
+       border-radius: 15px;
+    }
+    .card:hover { 
+        background: #fafafa; }
+
+    /* Imagem do produto */
+    .card-img {
+      width: 100%;
+      aspect-ratio: 3 / 4;        /* proporção igual à Nike */
+      overflow: hidden;
+      background: #f0ede8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+   
+    .card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      
+    }
+
+    .card-img img:hover 
+    {
+      transform: scale(1.05);
+      transition: transform .3s;
+    }
+    
+    /* Corpo do card */
+    .card-body { padding: .9rem; }
+
+    .card-badge {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: #888;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: #111;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    
+
+    /* Rodapé do card */
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .price { font-size: 13px; font-weight: 600; color: #111; }
+    .price-old {
+      font-size: 11px;
+      color: #aaa;
+      text-decoration: line-through;
+      margin-left: 5px;
+    }
+
+
+    /* Botão + */
+    .add-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid #ddd;
+      background: transparent;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .15s;
+      color: #111;
+
+    }
+    .add-btn:hover { 
+      background: #111;
+      color: #fff; 
+      border-color: #111;
+    
+    }
+
+
+
+    /* ── RODAPÉ ── */
+   footer {
+    background-color: #1A1A1A;
+    color: white;
+    padding: 10px 5px;
+    margin-top: 50px;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 40px;
+}
+
+
+
+.footer-column h4 {
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    color: #F2F2F2;
+}
+
+.footer-column p {
+    line-height: 1.6;
+}
+
+footer > p {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9rem;
+    color: #B8B8B8;
+}
+
+    /* ── RESPONSIVO ── */
+    @media (max-width: 640px) {
+      .nav { display: none; }
+      .hero h1 { font-size: 32px; }
+      .grid { margin: 0; }
+      .filters { padding: 0 1rem 1.25rem; }
+      .hero { padding: 2rem 1rem 1rem; }
+    }
