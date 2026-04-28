@@ -12,6 +12,7 @@ function showSlider() {
   slider[currentSlide].classList.add('on')
 }
 
+// Função para avançar para a próxima posição do carrossel
 function nextSlider() {
   hideSlider()
   if(currentSlide === slider.length -1) {
@@ -22,6 +23,7 @@ function nextSlider() {
   showSlider()
 }
 
+// Função para voltar para a posição anterior do carrossel
 function prevSlider() {
   hideSlider()
   if(currentSlide === 0) {
@@ -32,8 +34,9 @@ function prevSlider() {
   showSlider()
 }
 
+// Chamando os botao  de avanca e volta
 btnNext.addEventListener('click', nextSlider)
 btnPrev.addEventListener('click', prevSlider)
 
-// Auto-play a cada 10 segundos
+// Auto-play a cada 10 segundos 
 setInterval(nextSlider, 10000)

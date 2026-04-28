@@ -23,26 +23,23 @@ const CATALOGO = [
   /* adicione mais produtos aqui seguindo o mesmo formato */
 ]
 
-/* ============================================================
-   BLOCO 2 — CUPONS VÁLIDOS
-   0.10 = 10% de desconto, 0.20 = 20%, etc.
-============================================================ */
+/* 
+   Area dos cupons
+   0.10 = 10% de desconto, 0.20 = 20%, etc. */
 const CUPONS = {
   "KENNY": 0.20
 }
 
-/* ============================================================
-   BLOCO 3 — PARCELAS
-============================================================ */
+/* 
+   PARCELAS
+*/
 const PARCELAS = 12
 
-/* ────────────────────────────────────────────────────────────
-   NÃO PRECISA MEXER ABAIXO DAQUI
-──────────────────────────────────────────────────────────── */
+
 
 let descontoAtivo = 0
 
-/* ── localStorage ── */
+/*  localStorage - vai guarda no bowser */
 function lerCarrinho() {
   return JSON.parse(localStorage.getItem("bloco17_carrinho") || "[]")
 }
@@ -51,7 +48,7 @@ function salvarCarrinho(carrinho) {
   localStorage.setItem("bloco17_carrinho", JSON.stringify(carrinho))
 }
 
-/* ── Adicionar ao carrinho (chame nos botões das páginas de produto) ── */
+/*  Adicionar ao carrinho (chame nos botões das páginas de produto)  */
 function adicionarAoCarrinho(idProduto) {
   const produto = CATALOGO.find(p => p.id === idProduto)
 
@@ -70,10 +67,10 @@ function adicionarAoCarrinho(idProduto) {
   }
 
   salvarCarrinho(carrinho)
-  mostrarFeedback(produto.nome + " adicionado ao carrinho!")
+  mostrarAviso(produto.nome + " adicionado ao carrinho!")
 }
 
-/* ── Renderiza a tabela do carrinho ── */
+/* Renderiza a tabela do carrinho */
 function renderizarCarrinho() {
   const tbody = document.querySelector("tbody")
   if (!tbody) return
@@ -144,7 +141,7 @@ function renderizarCarrinho() {
   vincularBotoes()
 }
 
-/* ── Atualiza total e parcelas ── */
+/*  Atualiza total e parcelas */
 function atualizarTotal(subtotal) {
   const totalEl   = document.getElementById("totalValor")
   const parcelaEl = document.querySelector(".total-parcelado span")
@@ -160,7 +157,7 @@ function atualizarTotal(subtotal) {
   }
 }
 
-/* ── Vincula botões + - e remover ── */
+/*  Vincula botões + - e remover */
 function vincularBotoes() {
   const tbody = document.querySelector("tbody")
   if (!tbody) return
@@ -184,7 +181,7 @@ function vincularBotoes() {
   })
 }
 
-/* ── Alterar quantidade ── */
+/*  Alterar quantidade */
 function alterarQuantidade(id, delta) {
   let carrinho = lerCarrinho()
   const item   = carrinho.find(i => i.id === id)
@@ -200,13 +197,13 @@ function alterarQuantidade(id, delta) {
   renderizarCarrinho()
 }
 
-/* ── Remover item ── */
+/*  Remover item  */
 function removerItem(id) {
   salvarCarrinho(lerCarrinho().filter(i => i.id !== id))
   renderizarCarrinho()
 }
 
-/* ── Cupom de desconto ── */
+/*  Cupom de desconto  */
 function iniciarCupom() {
   const btn   = document.querySelector(".btn-cupom")
   const input = document.getElementById("inputCupom")
@@ -237,7 +234,7 @@ function iniciarCupom() {
   })
 }
 
-/* ── Toast de feedback ── */
+/*  Toast de Aviso  */
 function mostrarFeedback(msg) {
   const anterior = document.getElementById("_toast_bloco17")
   if (anterior) anterior.remove()
@@ -278,7 +275,7 @@ function mostrarFeedback(msg) {
   }, 2400)
 }
 
-/* ── Inicialização ── */
+/* Inicialização */
 document.addEventListener("DOMContentLoaded", () => {
   renderizarCarrinho()
   iniciarCupom()
