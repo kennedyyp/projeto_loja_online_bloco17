@@ -19,6 +19,27 @@ const CATALOGO = [
     categoria: "Camisas",
     preco:     149.90,
     img:       "imgs/categories/camisas.jpg"
+  },
+  {
+    id: 4,
+    nome:      "Short TM",
+    categoria: "Shorts",
+    preco:     50.90,
+    img:       "imgs/categories/shorts/1.jpg"
+  },
+  {
+    id: 5,
+    nome:      "Shorts dri fit",
+    categoria: "Shorts",
+    preco:     189.90,
+    img:       "imgs/categories/shorts/2.jpg"
+  },
+  {
+    id: 6,
+    nome:      "Shorts Oversized Essential",
+    categoria: "Shorts",
+    preco:     149.90,
+    img:       "imgs/categories/camisas.jpg"
   }
   /* adicione mais produtos aqui seguindo o mesmo formato */
 ]
@@ -67,7 +88,7 @@ function adicionarAoCarrinho(idProduto) {
   }
 
   salvarCarrinho(carrinho)
-  mostrarAviso(produto.nome + " adicionado ao carrinho!")
+  mostrarFeedback(produto.nome + " adicionado ao carrinho!")
 }
 
 /* Renderiza a tabela do carrinho */

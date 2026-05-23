@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BLOCO 17 - SHORTS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/produtos.css">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <a href="main.html"><img src="imgs/logo.png" alt=""></a>
+    <h3>Bloco 17</h3>
+  </div>
+  <div class="search">
+    <input type="search" placeholder="Pesquisar...">
+  </div>
+  <nav>
+    <a href="main.html">Home</a>
+    <a href="login.html">Conta</a>
+    <a href="carrinho.html"><i class="ri-shopping-cart-2-fill"></i></a>
+  </nav>
+</header>
+
+<div class="sabe">
+  <div>
+    <h1>Shorts</h1>
+    <p>Bloco 17</p>
+  </div>
+</div>
+
+<main class="grid">
+
+  <!-- PRODUTO 4 — id=4 no CATALOGO -->
+  <div class="card">
+    <a href="precompraS.html">
+      <div class="card-img">
+        <img src="imgs/categories/shorts/1.jpg" alt="Short TM">
+      </div>
+    </a>
+    <div class="card-body">
+      <div class="card-badge">Shorts</div>
+      <div class="card-name">Short TM</div>
+      <div class="card-footer">
+        <span class="price">R$ 50,90</span>
+
+
+        <button class="add-btn" title="Adicionar ao carrinho"
+                onclick="adicionarAoCarrinho(4)">
+          <i class="ri-shopping-cart-2-fill"></i>
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUTO 5 — id=5 no CATALOGO -->
+  <div class="card">
+    <a href="precompraS.html">
+      <div class="card-img">
+        <img src="imgs/categories/shorts/2.jpg" alt="Shorts dri fit">
+      </div>
+    </a>
+    <div class="card-body">
+      <div class="card-badge">Shorts</div>
+      <div class="card-name">Shorts dri fit</div>
+      <div class="card-footer">
+        <span class="price">R$ 189,90</span>
+        <button class="add-btn" title="Adicionar ao carrinho"
+                onclick="adicionarAoCarrinho(5)">
+          <i class="ri-shopping-cart-2-fill"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUTO 6 — id=6 no CATALOGO -->
+  <div class="card">
+    <a href="precompraS.html">
+      <div class="card-img">
+        <img src="imgs/categories/shorts/3.jpg" alt="Shorts Oversized">
+      </div>
+    </a>
+    <div class="card-body">
+      <div class="card-badge">Shorts</div>
+      <div class="card-name">Shorts Oversized Essential</div>
+      <div class="card-footer">
+        <div>
+          <span class="price">R$ 149,90</span>
+          <span class="price-old">R$ 199,90</span>
+        </div>
+        <button class="add-btn" title="Adicionar ao carrinho"
+                onclick="adicionarAoCarrinho(6)">
+          <i class="ri-shopping-cart-2-fill"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<hr>
+
+<footer>
+  <div class="footer-container">
+    <div class="footer-column">
+      <h4>Sobre nós</h4>
+      <p>Bloco 17 é uma marca de streetwear underground, focada em moda urbana e cultura alternativa.</p>
+    </div>
+    <div class="footer-column">
+      <h4>Contato</h4>
+      <p>Email: contato@bloco17.com</p>
+      <p>Telefone: (11) 99999-9999</p>
+      <p>Endereço: Rua do Underground, 17 - São Paulo, SP</p>
+    </div>
+  </div>
+  <p>Todos os direitos reservados a Bloco 17 - Desenvolvido por Pedro Kennedy</p>
+</footer>
+
+<!-- Script SEMPRE antes de fechar o body -->
+<script src="JS/carrinho.js"></script>
+</body>
+</html>

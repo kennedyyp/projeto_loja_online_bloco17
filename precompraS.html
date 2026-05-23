@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLOCO 17 - Short TM</title>
+    <link rel="stylesheet" href="styles/precompra.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <a href=""><img src="imgs/logo.png" alt=""></a>
+        <h3>Bloco 17</h3>
+    </div>
+    <div class="tema">
+        <h3>Street. Identity. Drop.</h3>
+    </div>
+    <nav>
+        <a href="camisas.html"><i class="ri-arrow-left-line"></i></a>
+        <a href="main.html">Home</a>
+        <a href="login.html">Conta</a>
+        <a href="carrinho.html"><i class="ri-shopping-cart-2-fill"></i></a>
+    </nav>
+</header>
+
+<main>
+    <div class="container">
+
+        <div class="produto">
+            <img src="imgs/categories/shorts/1.jpg" alt="">
+            <img src="imgs/categories/shorts/1.jpg" alt="">
+            <img src="imgs/categories/shorts/1.jpg" alt="">
+            <img src="imgs/categories/shorts/1.jpg" alt="">
+        </div>
+
+        <div class="info_produtos">
+            <span class="badge">Novo</span>
+            <h1>Short TM</h1>
+            <p>Tecido de alta performance com tecnologia de secagem rápida. Ideal para treinos intensos ou uso casual urbano.</p>
+
+            <div class="divider"></div>
+
+            <div class="preco-wrap">
+                <span class="preco">R$ 50,90</span>
+                <span class="preco-parcelado">Ou <strong>12x de R$ 4,24</strong> sem juros</span>
+            </div>
+
+            <span class="label">Tamanho</span>
+            <div class="tamanhos">
+                <button class="tam esgotado">PP</button>
+                <button class="tam ">P</button>
+                <button class="tam sel">M</button>
+                <button class="tam">G</button>
+                <button class="tam">GG</button>
+            </div>
+
+            <span class="label">Quantidade</span>
+            <div class="qty-wrap">
+                <button class="qty-btn" id="menos">-</button>
+                <span id="qty">1</span>
+                <button class="qty-btn" id="mais">+</button>
+            </div>
+
+            <!-- COMPRAR AGORA: adiciona e vai pro carrinho -->
+            <button class="add-btn" onclick="comprarAgora()">COMPRAR AGORA</button>
+
+            <!-- SALVAR: só adiciona ao carrinho -->
+            <button class="btn-salvar" onclick="salvarCarrinhoBotao()">
+                <i class="ri-shopping-cart-2-fill"></i> Salvar no Carrinho
+            </button>
+        </div>
+
+    </div>
+</main>
+
+<script src="JS/carrinho.js"></script>
+<script>
+    // ID do produto desta página — deve bater com o CATALOGO do carrinho.js
+    const ID_PRODUTO_PAGINA = 4
+
+    // Contador de quantidade
+    let q = 1
+    document.getElementById('mais').onclick = () => {
+        q++
+        document.getElementById('qty').textContent = q
+    }
+    document.getElementById('menos').onclick = () => {
+        if (q > 1) { q--; document.getElementById('qty').textContent = q }
+    }
+
+    // Seletor de tamanho
+    document.querySelectorAll('.tam:not(.esgotado)').forEach(b => {
+        b.onclick = () => {
+            document.querySelectorAll('.tam').forEach(x => x.classList.remove('sel'))
+            b.classList.add('sel')
+        }
+    })
+
+    // Adiciona a quantidade escolhida ao carrinho
+    function adicionarQtd() {
+        for (let i = 0; i < q; i++) {
+            adicionarAoCarrinho(ID_PRODUTO_PAGINA)
+        }
+    }
+
+    // Salvar no Carrinho — adiciona e mostra toast
+    function salvarCarrinhoBotao() {
+        adicionarQtd()
+    }
+
+    // Comprar Agora — adiciona e redireciona para o carrinho
+    function comprarAgora() {
+        adicionarQtd()
+        setTimeout(() => {
+            window.location.href = "carrinho.html"
+        }, 600) // pequeno delay pra mostrar o toast antes de redirecionar
+    }
+</script>
+
+</body>
+</html>

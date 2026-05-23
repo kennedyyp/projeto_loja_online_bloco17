@@ -6,6 +6,62 @@
   <title>Bloco 17 - Carrinho</title>
   <link rel="stylesheet" href="styles/carrinho.css">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    /* ── Usuário logado ── */
+    .usuario-info {
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+      padding: 1rem;
+      background: #111;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 420px;
+    }
+    .usuario-email {
+      font-size: 14px;
+      font-weight: 600;
+      color: #F2F2F2;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── Forma de pagamento ── */
+    .pagamento-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: .6rem;
+      width: 100%;
+      max-width: 420px;
+    }
+    .payment-select {
+      display: flex;
+      gap: 8px;
+    }
+    .payment-option {
+      flex: 1;
+      background: #111;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: .75rem .5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .payment-option:hover,
+    .payment-option.selected {
+      border-color: #C1121F;
+      background: rgba(193,18,31,.08);
+    }
+    .payment-option input[type=radio] { display: none; }
+    .pay-icon { font-size: 1.4rem; display: block; margin-bottom: 4px; }
+    .payment-option span:last-child { font-size: 11px; font-weight: 600; color: #B8B8B8; }
+
+    /* ── Seção de confirmação (oculta no início) ── */
+    #secaoConfirmacao { display: none; }
+  </style>
 </head>
 <body>
 
@@ -25,7 +81,9 @@
 
 <main>
   <div class="content">
-    <section>
+
+    <!-- ══ SEÇÃO 1: CARRINHO ══ -->
+    <section id="secaoCarrinho">
       <table>
         <thead>
           <tr>
@@ -37,33 +95,234 @@
           </tr>
         </thead>
         <tbody>
-          <!-- O JS preenche aqui automaticamente -->
+          <!-- preenchido pelo carrinho.js -->
         </tbody>
       </table>
+
+      <div class="rodape">
+        <!-- CUPOM -->
+        <div class="cupom-wrap">
+          <input type="text" id="inputCupom" placeholder="Código do cupom">
+          <button class="btn-cupom">Aplicar</button>
+        </div>
+        <span class="cupom-ok" id="cupomOk"></span>
+
+        <!-- TOTAL -->
+        <div class="total-wrap">
+          <span class="total-label">Total</span>
+          <span class="total-valor" id="totalValor">R$ 0,00</span>
+          <span class="total-parcelado">Ou <span>12x de R$ 0,00</span> sem juros</span>
+          <button class="btn-finalizar" onclick="irParaConfirmacao()">
+            Finalizar compra →
+          </button>
+        </div>
+      </div>
     </section>
 
-    <div class="rodape">
+    <!-- ══ SEÇÃO 2: CONFIRMAÇÃO ══ -->
+    <section id="secaoConfirmacao">
+      <table>
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Preço unit.</th>
+            <th>Qtd</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyConfirmacao">
+          <!-- preenchido pelo JS -->
+        </tbody>
+      </table>
 
-      <!-- CUPOM -->
-      <div class="cupom-wrap">
-        <input type="text" id="inputCupom" placeholder="Código do cupom">
-        <button class="btn-cupom">Aplicar</button>
+      <div class="rodape">
+
+        <!-- USUÁRIO LOGADO -->
+        <div id="usuarioWrap"></div>
+
+        <!-- FORMA DE PAGAMENTO -->
+        <div class="pagamento-wrap">
+          <span class="total-label">Forma de Pagamento</span>
+          <div class="payment-select">
+            <label class="payment-option selected" onclick="selectPayment(this)">
+              <input type="radio" name="pagamento" value="PIX" checked>
+              <span class="pay-icon">⚡</span>
+              <span>PIX</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- TOTAL CONFIRMAÇÃO -->
+        <div class="total-wrap">
+          <span class="total-label">Total do Pedido</span>
+          <span class="total-valor" id="totalConfirmacao">R$ 0,00</span>
+          <span class="total-parcelado">Ou <span id="parcelaConf">12x de R$ 0,00</span> sem juros</span>
+          <div style="display:flex;gap:.75rem;margin-top:.5rem">
+            <button class="btn-salvar" onclick="voltarCarrinho()">← Voltar</button>
+            <button class="btn-finalizar" onclick="confirmarPedido()">✅ Confirmar Compra</button>
+          </div>
+        </div>
+
       </div>
-      <span class="cupom-ok" id="cupomOk"></span>
+    </section>
 
-      <!-- TOTAL -->
-      <div class="total-wrap">
-        <span class="total-label">Total</span>
-        <span class="total-valor" id="totalValor">R$ 0,00</span>
-        <span class="total-parcelado">Ou <span>12x de R$ 0,00</span> sem juros</span>
-        <button class="btn-finalizar">Finalizar compra →</button>
-      </div>
-
-    </div>
   </div>
 </main>
 
-<!-- Script SEMPRE antes de fechar o body -->
 <script src="JS/carrinho.js"></script>
+<script>
+const PARCELAS_CONF = 12
+let pagamentoSelecionado = "PIX"
+let usuarioLogado = null
+
+/* ── Forma de pagamento ── */
+function selectPayment(el) {
+  document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'))
+  el.classList.add('selected')
+  pagamentoSelecionado = el.querySelector('input[type=radio]').value
+}
+
+/* ── Ir para confirmação ── */
+function irParaConfirmacao() {
+  const carrinho = lerCarrinho()
+  if (carrinho.length === 0) {
+    mostrarFeedback("Seu carrinho está vazio!")
+    return
+  }
+
+  // Verifica login
+  fetch("php/sessao.php")
+    .then(r => r.json())
+    .then(dados => {
+      if (!dados.logado) {
+        // Salva intenção e manda pro login
+        localStorage.setItem("bloco17_redirect", "carrinho.html")
+        window.location.href = "login.html"
+        return
+      }
+
+      usuarioLogado = dados
+
+      // Troca seção
+      document.getElementById("secaoCarrinho").style.display = "none"
+      document.getElementById("secaoConfirmacao").style.display = "block"
+
+      renderizarConfirmacao()
+      exibirUsuario(dados)
+    })
+    .catch(() => {
+      // Sem servidor PHP (live server) — avisa e deixa continuar
+      mostrarFeedback("Cade o servidozin? para verificar o login!")
+    })
+}
+
+/* ── Voltar pro carrinho ── */
+function voltarCarrinho() {
+  document.getElementById("secaoConfirmacao").style.display = "none"
+  document.getElementById("secaoCarrinho").style.display = "block"
+}
+
+/* ── Renderiza tabela de confirmação ── */
+function renderizarConfirmacao() {
+  const tbody     = document.getElementById("tbodyConfirmacao")
+  const totalEl   = document.getElementById("totalConfirmacao")
+  const parcelaEl = document.getElementById("parcelaConf")
+  if (!tbody) return
+
+  const carrinho = lerCarrinho()
+  tbody.innerHTML = ""
+  let total = 0
+
+  carrinho.forEach(item => {
+    const produto = CATALOGO.find(p => p.id === item.id)
+    if (!produto) return
+
+    const subtotal = produto.preco * item.quantidade
+    total += subtotal
+
+    const tr = document.createElement("tr")
+    tr.innerHTML = `
+      <td>
+        <div class="produto">
+          <img src="${produto.img}" alt="${produto.nome}">
+          <div class="info">
+            <div class="name">${produto.nome}</div>
+            <div class="categoria">${produto.categoria}</div>
+          </div>
+        </div>
+      </td>
+      <td>R$ ${produto.preco.toFixed(2).replace(".", ",")}</td>
+      <td>${item.quantidade}</td>
+      <td>R$ ${subtotal.toFixed(2).replace(".", ",")}</td>
+    `
+    tbody.appendChild(tr)
+  })
+
+  if (totalEl) totalEl.textContent = "R$ " + total.toFixed(2).replace(".", ",")
+  if (parcelaEl) parcelaEl.textContent = PARCELAS_CONF + "x de R$ " + (total / PARCELAS_CONF).toFixed(2).replace(".", ",")
+}
+
+/* ── Exibe dados do usuário logado ── */
+function exibirUsuario(dados) {
+  const wrap = document.getElementById("usuarioWrap")
+  if (!wrap) return
+  wrap.innerHTML = `
+    <div class="usuario-info">
+      <span class="total-label">Comprando como</span>
+      <div class="usuario-email">
+        <i class="ri-user-fill"></i> ${dados.email}
+        ${dados.nome ? `<span style="color:#6B6B6B;font-weight:400">— ${dados.nome}</span>` : ""}
+      </div>
+    </div>
+  `
+}
+
+/* ── Confirmar e salvar venda ── */
+function confirmarPedido() {
+  const carrinho = lerCarrinho()
+  if (carrinho.length === 0) {
+    mostrarFeedback("Carrinho vazio!")
+    return
+  }
+
+  // Monta os itens pra enviar
+  const itens = carrinho.map(item => {
+    const produto = CATALOGO.find(p => p.id === item.id)
+    return {
+      nome:      produto ? produto.nome : "Produto",
+      preco:     produto ? produto.preco : 0,
+      quantidade: item.quantidade,
+      subtotal:  produto ? produto.preco * item.quantidade : 0
+    }
+  })
+
+  const totalNum = itens.reduce((acc, i) => acc + i.subtotal, 0)
+
+  // Envia pro PHP salvar o .dat
+  fetch("php/salvar_venda.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      itens:     itens,
+      total:     totalNum,
+      pagamento: pagamentoSelecionado
+    })
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.sucesso) {
+      localStorage.removeItem("bloco17_carrinho")
+      mostrarFeedback("Pedido #" + res.numero_venda + " confirmado! 🎉")
+      setTimeout(() => { window.location.href = "main.html" }, 2500)
+    } else {
+      mostrarFeedback("Erro: " + (res.erro || "tente novamente"))
+    }
+  })
+  .catch(() => {
+    mostrarFeedback("Abra pelo XAMPP para finalizar o pedido!")
+  })
+}
+</script>
+
 </body>
-</html> 
+</html>
