@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="styles/carrinho.css">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
   <style>
-    /* ── Usuário logado ── */
+    /* Dados do usuário logado */
     .usuario-info {
       display: flex;
       flex-direction: column;
@@ -28,7 +28,7 @@
       gap: 8px;
     }
 
-    /* ── Forma de pagamento ── */
+    /* Opções de pagamento */
     .pagamento-wrap {
       display: flex;
       flex-direction: column;
@@ -36,10 +36,7 @@
       width: 100%;
       max-width: 420px;
     }
-    .payment-select {
-      display: flex;
-      gap: 8px;
-    }
+    .payment-select { display: flex; gap: 8px; }
     .payment-option {
       flex: 1;
       background: #111;
@@ -59,7 +56,7 @@
     .pay-icon { font-size: 1.4rem; display: block; margin-bottom: 4px; }
     .payment-option span:last-child { font-size: 11px; font-weight: 600; color: #B8B8B8; }
 
-    /* ── Seção de confirmação (oculta no início) ── */
+    /* Seção de confirmação fica escondida no início */
     #secaoConfirmacao { display: none; }
   </style>
 </head>
@@ -82,7 +79,7 @@
 <main>
   <div class="content">
 
-    <!-- ══ SEÇÃO 1: CARRINHO ══ -->
+    <!-- SEÇÃO 1: lista do carrinho -->
     <section id="secaoCarrinho">
       <table>
         <thead>
@@ -100,14 +97,14 @@
       </table>
 
       <div class="rodape">
-        <!-- CUPOM -->
+        <!-- Cupom de desconto -->
         <div class="cupom-wrap">
           <input type="text" id="inputCupom" placeholder="Código do cupom">
           <button class="btn-cupom">Aplicar</button>
         </div>
         <span class="cupom-ok" id="cupomOk"></span>
 
-        <!-- TOTAL -->
+        <!-- Total e botão de finalizar -->
         <div class="total-wrap">
           <span class="total-label">Total</span>
           <span class="total-valor" id="totalValor">R$ 0,00</span>
@@ -119,7 +116,7 @@
       </div>
     </section>
 
-    <!-- ══ SEÇÃO 2: CONFIRMAÇÃO ══ -->
+    <!-- SEÇÃO 2: confirmação do pedido -->
     <section id="secaoConfirmacao">
       <table>
         <thead>
@@ -137,10 +134,10 @@
 
       <div class="rodape">
 
-        <!-- USUÁRIO LOGADO -->
+        <!-- Dados do usuário logado (preenchido pelo JS) -->
         <div id="usuarioWrap"></div>
 
-        <!-- FORMA DE PAGAMENTO -->
+        <!-- Forma de pagamento: só PIX -->
         <div class="pagamento-wrap">
           <span class="total-label">Forma de Pagamento</span>
           <div class="payment-select">
@@ -150,14 +147,23 @@
               <span>PIX</span>
             </label>
           </div>
+
+          <!-- Coloque sua imagem de QR Code em imgs/qrcode.png -->
+          <div style="text-align:center; margin-top:12px;">
+            <img src="imgs/qrcode.png" alt="QR Code PIX"
+                 style="width:180px; height:180px; object-fit:contain; border-radius:8px;">
+            <p style="font-size:0.85em; color:#888; margin-top:6px;">
+              Escaneie o QR Code e após pagar clique em Confirmar
+            </p>
+          </div>
         </div>
 
-        <!-- TOTAL CONFIRMAÇÃO -->
+        <!-- Total e botões de voltar/confirmar -->
         <div class="total-wrap">
           <span class="total-label">Total do Pedido</span>
           <span class="total-valor" id="totalConfirmacao">R$ 0,00</span>
           <span class="total-parcelado">Ou <span id="parcelaConf">12x de R$ 0,00</span> sem juros</span>
-          <div style="display:flex;gap:.75rem;margin-top:.5rem">
+          <div style="display:flex; gap:.75rem; margin-top:.5rem">
             <button class="btn-salvar" onclick="voltarCarrinho()">← Voltar</button>
             <button class="btn-finalizar" onclick="confirmarPedido()">✅ Confirmar Compra</button>
           </div>
@@ -171,157 +177,163 @@
 
 <script src="JS/carrinho.js"></script>
 <script>
-const PARCELAS_CONF = 12
-let pagamentoSelecionado = "PIX"
-let usuarioLogado = null
+  const PARCELAS_CONF = 12
+  let pagamentoSelecionado = "PIX"
+  let usuarioLogado = null
 
-/* ── Forma de pagamento ── */
-function selectPayment(el) {
-  document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'))
-  el.classList.add('selected')
-  pagamentoSelecionado = el.querySelector('input[type=radio]').value
-}
-
-/* ── Ir para confirmação ── */
-function irParaConfirmacao() {
-  const carrinho = lerCarrinho()
-  if (carrinho.length === 0) {
-    mostrarFeedback("Seu carrinho está vazio!")
-    return
+  // Marca a opção de pagamento selecionada
+  function selectPayment(el) {
+    document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'))
+    el.classList.add('selected')
+    pagamentoSelecionado = el.querySelector('input[type=radio]').value
   }
 
-  // Verifica login
-  fetch("php/sessao.php")
-    .then(r => r.json())
-    .then(dados => {
-      if (!dados.logado) {
-        // Salva intenção e manda pro login
-        localStorage.setItem("bloco17_redirect", "carrinho.html")
-        window.location.href = "login.html"
-        return
-      }
+  // Clicou em "Finalizar compra" — verifica login antes de ir pra confirmação
+  function irParaConfirmacao() {
+    const carrinho = lerCarrinho()
+    if (carrinho.length === 0) {
+      mostrarFeedback("Seu carrinho está vazio!")
+      return
+    }
 
-      usuarioLogado = dados
+    // Consulta o PHP para saber se o usuário está logado
+    fetch("php/sessao.php")
+      .then(r => {
+        // Se o servidor não retornar OK, lança erro para cair no catch
+        if (!r.ok) throw new Error("Servidor retornou status " + r.status)
+        return r.json()
+      })
+      .then(dados => {
+        // Não está logado → salva intenção e redireciona pro login
+        if (!dados.logado) {
+          localStorage.setItem("bloco17_redirect", "carrinho.html")
+          window.location.href = "login.html"
+          return
+        }
 
-      // Troca seção
-      document.getElementById("secaoCarrinho").style.display = "none"
-      document.getElementById("secaoConfirmacao").style.display = "block"
+        // Está logado → mostra a seção de confirmação
+        usuarioLogado = dados
+        document.getElementById("secaoCarrinho").style.display = "none"
+        document.getElementById("secaoConfirmacao").style.display = "block"
+        renderizarConfirmacao()
+        exibirUsuario(dados)
+      })
+      .catch(erro => {
+        // Mostra o erro real para facilitar o debug
+        mostrarFeedback("Erro ao verificar login: " + erro.message + ". Abra pelo XAMPP!")
+      })
+  }
 
-      renderizarConfirmacao()
-      exibirUsuario(dados)
-    })
-    .catch(() => {
-      // Sem servidor PHP (live server) — avisa e deixa continuar
-      mostrarFeedback("Cade o servidozin? para verificar o login!")
-    })
-}
+  // Volta para a seção do carrinho
+  function voltarCarrinho() {
+    document.getElementById("secaoConfirmacao").style.display = "none"
+    document.getElementById("secaoCarrinho").style.display = "block"
+  }
 
-/* ── Voltar pro carrinho ── */
-function voltarCarrinho() {
-  document.getElementById("secaoConfirmacao").style.display = "none"
-  document.getElementById("secaoCarrinho").style.display = "block"
-}
+  // Preenche a tabela de confirmação com os itens do carrinho
+  function renderizarConfirmacao() {
+    const tbody     = document.getElementById("tbodyConfirmacao")
+    const totalEl   = document.getElementById("totalConfirmacao")
+    const parcelaEl = document.getElementById("parcelaConf")
+    if (!tbody) return
 
-/* ── Renderiza tabela de confirmação ── */
-function renderizarConfirmacao() {
-  const tbody     = document.getElementById("tbodyConfirmacao")
-  const totalEl   = document.getElementById("totalConfirmacao")
-  const parcelaEl = document.getElementById("parcelaConf")
-  if (!tbody) return
+    const carrinho = lerCarrinho()
+    tbody.innerHTML = ""
+    let total = 0
 
-  const carrinho = lerCarrinho()
-  tbody.innerHTML = ""
-  let total = 0
+    carrinho.forEach(item => {
+      const produto = CATALOGO.find(p => p.id === item.id)
+      if (!produto) return
 
-  carrinho.forEach(item => {
-    const produto = CATALOGO.find(p => p.id === item.id)
-    if (!produto) return
+      const subtotal = produto.preco * item.quantidade
+      total += subtotal
 
-    const subtotal = produto.preco * item.quantidade
-    total += subtotal
-
-    const tr = document.createElement("tr")
-    tr.innerHTML = `
-      <td>
-        <div class="produto">
-          <img src="${produto.img}" alt="${produto.nome}">
-          <div class="info">
-            <div class="name">${produto.nome}</div>
-            <div class="categoria">${produto.categoria}</div>
+      const tr = document.createElement("tr")
+      tr.innerHTML = `
+        <td>
+          <div class="produto">
+            <img src="${produto.img}" alt="${produto.nome}">
+            <div class="info">
+              <div class="name">${produto.nome}</div>
+              <div class="categoria">${produto.categoria}</div>
+            </div>
           </div>
-        </div>
-      </td>
-      <td>R$ ${produto.preco.toFixed(2).replace(".", ",")}</td>
-      <td>${item.quantidade}</td>
-      <td>R$ ${subtotal.toFixed(2).replace(".", ",")}</td>
-    `
-    tbody.appendChild(tr)
-  })
+        </td>
+        <td>R$ ${produto.preco.toFixed(2).replace(".", ",")}</td>
+        <td>${item.quantidade}</td>
+        <td>R$ ${subtotal.toFixed(2).replace(".", ",")}</td>
+      `
+      tbody.appendChild(tr)
+    })
 
-  if (totalEl) totalEl.textContent = "R$ " + total.toFixed(2).replace(".", ",")
-  if (parcelaEl) parcelaEl.textContent = PARCELAS_CONF + "x de R$ " + (total / PARCELAS_CONF).toFixed(2).replace(".", ",")
-}
-
-/* ── Exibe dados do usuário logado ── */
-function exibirUsuario(dados) {
-  const wrap = document.getElementById("usuarioWrap")
-  if (!wrap) return
-  wrap.innerHTML = `
-    <div class="usuario-info">
-      <span class="total-label">Comprando como</span>
-      <div class="usuario-email">
-        <i class="ri-user-fill"></i> ${dados.email}
-        ${dados.nome ? `<span style="color:#6B6B6B;font-weight:400">— ${dados.nome}</span>` : ""}
-      </div>
-    </div>
-  `
-}
-
-/* ── Confirmar e salvar venda ── */
-function confirmarPedido() {
-  const carrinho = lerCarrinho()
-  if (carrinho.length === 0) {
-    mostrarFeedback("Carrinho vazio!")
-    return
+    if (totalEl)   totalEl.textContent   = "R$ " + total.toFixed(2).replace(".", ",")
+    if (parcelaEl) parcelaEl.textContent = PARCELAS_CONF + "x de R$ " + (total / PARCELAS_CONF).toFixed(2).replace(".", ",")
   }
 
-  // Monta os itens pra enviar
-  const itens = carrinho.map(item => {
-    const produto = CATALOGO.find(p => p.id === item.id)
-    return {
-      nome:      produto ? produto.nome : "Produto",
-      preco:     produto ? produto.preco : 0,
-      quantidade: item.quantidade,
-      subtotal:  produto ? produto.preco * item.quantidade : 0
+  // Mostra o nome e email do usuário logado na tela
+  function exibirUsuario(dados) {
+    const wrap = document.getElementById("usuarioWrap")
+    if (!wrap) return
+    wrap.innerHTML = `
+      <div class="usuario-info">
+        <span class="total-label">Comprando como</span>
+        <div class="usuario-email">
+          <i class="ri-user-fill"></i> ${dados.email}
+          ${dados.nome ? `<span style="color:#6B6B6B;font-weight:400">— ${dados.nome}</span>` : ""}
+        </div>
+      </div>
+    `
+  }
+
+  // Envia o pedido para o PHP salvar o arquivo .dat
+  function confirmarPedido() {
+    const carrinho = lerCarrinho()
+    if (carrinho.length === 0) {
+      mostrarFeedback("Carrinho vazio!")
+      return
     }
-  })
 
-  const totalNum = itens.reduce((acc, i) => acc + i.subtotal, 0)
-
-  // Envia pro PHP salvar o .dat
-  fetch("php/salvar_venda.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      itens:     itens,
-      total:     totalNum,
-      pagamento: pagamentoSelecionado
+    // Monta os itens no formato que o PHP espera
+    const itens = carrinho.map(item => {
+      const produto = CATALOGO.find(p => p.id === item.id)
+      return {
+        nome:       produto ? produto.nome  : "Produto",
+        preco:      produto ? produto.preco : 0,
+        quantidade: item.quantidade,
+        subtotal:   produto ? produto.preco * item.quantidade : 0
+      }
     })
-  })
-  .then(r => r.json())
-  .then(res => {
-    if (res.sucesso) {
-      localStorage.removeItem("bloco17_carrinho")
-      mostrarFeedback("Pedido #" + res.numero_venda + " confirmado! 🎉")
-      setTimeout(() => { window.location.href = "main.html" }, 2500)
-    } else {
-      mostrarFeedback("Erro: " + (res.erro || "tente novamente"))
-    }
-  })
-  .catch(() => {
-    mostrarFeedback("Abra pelo XAMPP para finalizar o pedido!")
-  })
-}
+
+    const totalNum = itens.reduce((acc, i) => acc + i.subtotal, 0)
+
+    // Envia os dados via POST para salvar_venda.php
+    fetch("php/salvar_venda.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        itens:     itens,
+        total:     totalNum,
+        pagamento: pagamentoSelecionado
+      })
+    })
+    .then(r => {
+      if (!r.ok) throw new Error("Servidor retornou status " + r.status)
+      return r.json()
+    })
+    .then(res => {
+      if (res.sucesso) {
+        // Limpa o carrinho e mostra mensagem de sucesso
+        localStorage.removeItem("bloco17_carrinho")
+        mostrarFeedback("Pedido #" + res.numero_venda + " confirmado! 🎉")
+        setTimeout(() => { window.location.href = "main.html" }, 2500)
+      } else {
+        mostrarFeedback("Erro: " + (res.erro || "tente novamente"))
+      }
+    })
+    .catch(erro => {
+      mostrarFeedback("Erro ao salvar pedido: " + erro.message)
+    })
+  }
 </script>
 
 </body>

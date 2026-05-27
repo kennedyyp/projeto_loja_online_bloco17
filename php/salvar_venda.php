@@ -70,3 +70,4 @@ echo json_encode([
     'numero_venda' => $numeroVenda
 ]);
 ?>
+
