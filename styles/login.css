@@ -1,7 +1,7 @@
 @font-face {
     font-family: 'Urbanist';
-    src: url("../fontes/Urbanist/static/Urbanist-SemiBold.ttf") format("truetype-variations");
-    font-weight: 100 900;
+    src: url("../fontes/Urbanist/static/Urbanist-SemiBold.ttf") format("truetype");
+    font-weight: 600;
     font-style: normal;
 }
 
@@ -204,15 +204,6 @@ img{
 
 }
 
-.login_button i{
-    font-weight: initial;
-    font-size: 1.5rem;
-
-}
-
-.login_button:hover{
-    background-color: var(--border-color);
-}
 
 .login_sign{
     text-align: center;

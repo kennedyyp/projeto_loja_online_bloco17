@@ -20,13 +20,13 @@
     <nav>
         <a href="camisas.html"><i class="ri-arrow-left-line"></i></a>
         <a href="main.html">Home</a>
-        <a href="login.html">Conta</a>
+        <a href="php/conta.php">Conta</a>
         <a href="carrinho.html"><i class="ri-shopping-cart-2-fill"></i></a>
     </nav>
 </header>
 
 <main>
-    <div class="container">
+    <div class="container" data-id="1">
 
         <div class="produto">
             <img src="imgs/categories/camisas.jpg" alt="">
@@ -76,48 +76,8 @@
 </main>
 
 <script src="JS/carrinho.js"></script>
-<script>
-    // ID do produto desta página — deve bater com o CATALOGO do carrinho.js
-    const ID_PRODUTO_PAGINA = 1
-
-    // Contador de quantidade
-    let q = 1
-    document.getElementById('mais').onclick = () => {
-        q++
-        document.getElementById('qty').textContent = q
-    }
-    document.getElementById('menos').onclick = () => {
-        if (q > 1) { q--; document.getElementById('qty').textContent = q }
-    }
-
-    // Seletor de tamanho
-    document.querySelectorAll('.tam:not(.esgotado)').forEach(b => {
-        b.onclick = () => {
-            document.querySelectorAll('.tam').forEach(x => x.classList.remove('sel'))
-            b.classList.add('sel')
-        }
-    })
-
-    // Adiciona a quantidade escolhida ao carrinho
-    function adicionarQtd() {
-        for (let i = 0; i < q; i++) {
-            adicionarAoCarrinho(ID_PRODUTO_PAGINA)
-        }
-    }
-
-    // Salvar no Carrinho — adiciona e mostra toast
-    function salvarCarrinhoBotao() {
-        adicionarQtd()
-    }
-
-    // Comprar Agora — adiciona e redireciona para o carrinho
-    function comprarAgora() {
-        adicionarQtd()
-        setTimeout(() => {
-            window.location.href = "carrinho.html"
-        }, 600) // pequeno delay pra mostrar o toast antes de redirecionar
-    }
-</script>
+<script src="JS/precompra.js"></script>
+<script src="JS/toast.js"></script>
 
 </body>
 </html>

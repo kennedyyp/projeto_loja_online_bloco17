@@ -73,6 +73,7 @@ function salvarCarrinho(carrinho) {
 function adicionarAoCarrinho(idProduto) {
   const produto = CATALOGO.find(p => p.id === idProduto)
 
+  /* Pra eu não me perde caso adiciona algo errado */
   if (!produto) {
     console.warn("Produto id=" + idProduto + " não encontrado no CATALOGO.")
     return
@@ -178,7 +179,7 @@ function atualizarTotal(subtotal) {
   }
 }
 
-/*  Vincula botões + - e remover */
+/*  Vincula botões + - e o de remover */
 function vincularBotoes() {
   const tbody = document.querySelector("tbody")
   if (!tbody) return
@@ -255,52 +256,158 @@ function iniciarCupom() {
   })
 }
 
-/*  Toast de Aviso  */
-function mostrarFeedback(msg) {
-  const anterior = document.getElementById("_toast_bloco17")
-  if (anterior) anterior.remove()
 
-  const toast = document.createElement("div")
-  toast.id = "_toast_bloco17"
-  toast.style.cssText = `
-    position: fixed;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%) translateY(60px);
-    background: #C1121F;
-    color: #fff;
-    font-family: 'Urbanist', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    padding: 12px 24px;
-    border-radius: 8px;
-    z-index: 99999;
-    opacity: 0;
-    transition: all .3s ease;
-    pointer-events: none;
-  `
-  toast.textContent = msg
-  document.body.appendChild(toast)
-
-  requestAnimationFrame(() => {
-    toast.style.opacity   = "1"
-    toast.style.transform = "translateX(-50%) translateY(0)"
-  })
-
-  setTimeout(() => {
-    toast.style.opacity   = "0"
-    toast.style.transform = "translateX(-50%) translateY(60px)"
-    setTimeout(() => toast.remove(), 400)
-  }, 2400)
-}
 
 /* Inicialização */
 document.addEventListener("DOMContentLoaded", () => {
   renderizarCarrinho()
   iniciarCupom()
 })
+
+/* ── Confirmação de pedido ── */
+
+const PARCELAS_CONF    = 12
+let pagamentoSelecionado = "PIX"
+let usuarioLogado        = null
+
+// Marca a opção de pagamento selecionada
+function selectPayment(el) {
+  document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'))
+  el.classList.add('selected')
+  pagamentoSelecionado = el.querySelector('input[type=radio]').value
+}
+
+// Clicou em "Finalizar compra" — verifica login antes de ir pra confirmação
+function irParaConfirmacao() {
+  const carrinho = lerCarrinho()
+  if (carrinho.length === 0) {
+    mostrarFeedback("Seu carrinho está vazio!")
+    return
+  }
+
+  fetch("php/sessao.php")
+    .then(r => r.text())
+    .then(text => {
+      const partes = text.trim().split("|")
+
+      if (partes[0] !== "ok") {
+        localStorage.setItem("bloco17_redirect", "carrinho.html")
+        window.location.href = "login.html"
+        return
+      }
+
+      usuarioLogado = { email: partes[2], nome: partes[1] }
+      document.getElementById("secaoCarrinho").style.display    = "none"
+      document.getElementById("secaoConfirmacao").style.display = "block"
+      renderizarConfirmacao()
+      exibirUsuario(usuarioLogado)
+    })
+    .catch(() => {
+      mostrarFeedback("Erro ao verificar login. Abra pelo XAMPP!")
+    })
+}
+
+// Volta para a seção do carrinho
+function voltarCarrinho() {
+  document.getElementById("secaoConfirmacao").style.display = "none"
+  document.getElementById("secaoCarrinho").style.display    = "block"
+}
+
+// Preenche a tabela de confirmação com os itens do carrinho
+function renderizarConfirmacao() {
+  const tbody     = document.getElementById("tbodyConfirmacao")
+  const totalEl   = document.getElementById("totalConfirmacao")
+  const parcelaEl = document.getElementById("parcelaConf")
+  if (!tbody) return
+
+  const carrinho = lerCarrinho()
+  tbody.innerHTML = ""
+  let total = 0
+
+  carrinho.forEach(item => {
+    const produto = CATALOGO.find(p => p.id === item.id)
+    if (!produto) return
+
+    const subtotal = produto.preco * item.quantidade
+    total += subtotal
+
+    const tr = document.createElement("tr")
+    tr.innerHTML = `
+      <td>
+        <div class="produto">
+          <img src="${produto.img}" alt="${produto.nome}">
+          <div class="info">
+            <div class="name">${produto.nome}</div>
+            <div class="categoria">${produto.categoria}</div>
+          </div>
+        </div>
+      </td>
+      <td>R$ ${produto.preco.toFixed(2).replace(".", ",")}</td>
+      <td>${item.quantidade}</td>
+      <td>R$ ${subtotal.toFixed(2).replace(".", ",")}</td>
+    `
+    tbody.appendChild(tr)
+  })
+
+  if (totalEl)   totalEl.textContent   = "R$ " + total.toFixed(2).replace(".", ",")
+  if (parcelaEl) parcelaEl.textContent = PARCELAS_CONF + "x de R$ " + (total / PARCELAS_CONF).toFixed(2).replace(".", ",")
+}
+
+// Mostra o nome e email do usuário logado na tela
+function exibirUsuario(dados) {
+  const wrap = document.getElementById("usuarioWrap")
+  if (!wrap) return
+  wrap.innerHTML = `
+    <div class="usuario-info">
+      <span class="total-label">Comprando como</span>
+      <div class="usuario-email">
+        <i class="ri-user-fill"></i> ${dados.email}
+        ${dados.nome ? `<span style="color:#6B6B6B;font-weight:400">— ${dados.nome}</span>` : ""}
+      </div>
+    </div>
+  `
+}
+
+// Envia o pedido para o PHP salvar o arquivo .dat
+function confirmarPedido() {
+  const carrinho = lerCarrinho()
+  if (carrinho.length === 0) {
+    mostrarFeedback("Carrinho vazio!")
+    return
+  }
+
+  const itens = carrinho.map(item => {
+    const produto = CATALOGO.find(p => p.id === item.id)
+    return {
+      nome:       produto ? produto.nome              : "Produto",
+      preco:      produto ? produto.preco             : 0,
+      quantidade: item.quantidade,
+      subtotal:   produto ? produto.preco * item.quantidade : 0
+    }
+  })
+
+  const totalNum = itens.reduce((acc, i) => acc + i.subtotal, 0)
+
+  fetch("php/salvar_venda.php", {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({ itens, total: totalNum, pagamento: pagamentoSelecionado })
+  })
+  .then(r => r.text())
+  .then(text => {
+    const partes = text.trim().split("|")
+    if (partes[0] === "ok") {
+      localStorage.removeItem("bloco17_carrinho")
+      mostrarFeedback("Pedido #" + partes[1] + " confirmado!")
+      setTimeout(() => { window.location.href = "main.html" }, 2500)
+    } else {
+      mostrarFeedback("Erro ao salvar pedido. Tente novamente.")
+    }
+  })
+  .catch(() => {
+    mostrarFeedback("Erro de conexão. Tente novamente.")
+  })
+}
 
  /*
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⢿⣿⣿⣿⣿

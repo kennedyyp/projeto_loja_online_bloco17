@@ -374,3 +374,55 @@ tbody tr td {
 }
 
 .btn-finalizar:hover { background: var(--first-color-alt); }
+
+/* Dados do usuário logado */
+    .usuario-info {
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+      padding: 1rem;
+      background: #111;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 420px;
+    }
+    .usuario-email {
+      font-size: 14px;
+      font-weight: 600;
+      color: #F2F2F2;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Opções de pagamento */
+    .pagamento-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: .6rem;
+      width: 100%;
+      max-width: 420px;
+    }
+    .payment-select { display: flex; gap: 8px; }
+    .payment-option {
+      flex: 1;
+      background: #111;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: .75rem .5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .payment-option:hover,
+    .payment-option.selected {
+      border-color: #C1121F;
+      background: rgba(193,18,31,.08);
+    }
+    .payment-option input[type=radio] { display: none; }
+    .pay-icon { font-size: 1.4rem; display: block; margin-bottom: 4px; }
+    .payment-option span:last-child { font-size: 11px; font-weight: 600; color: #B8B8B8; }
+
+    /* Seção de confirmação fica escondida no início */
+    #secaoConfirmacao { display: none; }

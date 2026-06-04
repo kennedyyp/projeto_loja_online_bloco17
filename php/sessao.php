@@ -1,35 +1,28 @@
 <?php
-// Inicia a sessão para verificar se o usuário está logado
-session_start();
+if(!isset($_SESSION)) session_start();
 
-// Diz pro navegador que a resposta é JSON
-header('Content-Type: application/json');
-
-// Se não tiver ninguém logado, retorna logado = false
-if (!isset($_SESSION['usuario_email'])) {
-    echo json_encode(['logado' => false, 'email' => null, 'nome' => null]);
+// Não está logado — manda pro login
+if(!isset($_SESSION['usuario_email'])) {
+    echo "login";
     exit;
 }
 
-$email = $_SESSION['usuario_email'];
-
-// Pasta de usuários fica dentro do projeto (htdocs/seuprojeto/usuarios/)
-// __DIR__ = pasta php/   dirname(__DIR__) = pasta raiz do projeto
+$email       = $_SESSION['usuario_email'];
+$cpf         = $_SESSION['usuario_cpf'];
 $usuariosDir = dirname(__DIR__) . '/usuarios';
-$dadosArq    = $usuariosDir . '/' . $email . '_dados.dat';
-$nome        = null;
+$dadosArq    = $usuariosDir . '/' . $cpf . '.dat';
+$nome        = $email;
 
-// Lê o nome do arquivo de dados do usuário
-if (file_exists($dadosArq)) {
-    $linha  = file_get_contents($dadosArq);
+// Lê o nome no arquivo do CPF em /usuarios
+if(file_exists($dadosArq)) {
+    $arq    = fopen($dadosArq, "r");
+    $linha  = fgets($arq, 1000);
+    fclose($arq);
+
     $campos = explode('|', $linha);
-    // Formato do arquivo: nome|cpf|endereco|bairro|cidade|estado|cep|email
-    $nome = trim($campos[0] ?? null);
+    $nome   = trim($campos[0]);
 }
 
-// Retorna os dados do usuário logado
-echo json_encode([
-    'logado' => true,
-    'email'  => $email,
-    'nome'   => $nome
-]);
+// Retorna ok|nome|email — lido pelo JS com split("|")
+echo "ok|" . $nome . "|" . $email;
+?>

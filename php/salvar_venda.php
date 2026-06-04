@@ -1,73 +1,69 @@
 <?php
-// php/salvar_venda.php
-session_start();
-
-header('Content-Type: application/json');
+if(!isset($_SESSION)) session_start();
 
 // Precisa estar logado
-if (!isset($_SESSION['usuario_email'])) {
-    echo json_encode(['sucesso' => false, 'erro' => 'Usuário não autenticado']);
+if(!isset($_SESSION['usuario_email'])) {
+    header('Location: ../login.html');
     exit;
 }
 
 // Lê o JSON enviado pelo JS
-$body = file_get_contents("php://input");
+$body  = file_get_contents("php://input");
 $dados = json_decode($body, true);
 
-if (!$dados || empty($dados['itens'])) {
-    echo json_encode(['sucesso' => false, 'erro' => 'Dados inválidos']);
+if(!$dados || empty($dados['itens'])) {
+    header('Location: ../main.html');
     exit;
 }
 
-// ── Dados do usuário ──
+// Pega email e CPF da sessão
 $email       = $_SESSION['usuario_email'];
+$cpf         = $_SESSION['usuario_cpf'];
 $usuariosDir = dirname(__DIR__) . "/usuarios";
-$dadosArq    = $usuariosDir . "/" . $email . "_dados.dat";
-$nome        = $email; // fallback
+$dadosArq    = $usuariosDir . "/" . $cpf . ".dat";
+$nome        = $email;
 
-if (file_exists($dadosArq)) {
-    $campos = explode("|", file_get_contents($dadosArq));
-    $nome   = $campos[0] ?? $email;
+// Lê o nome no arquivo do CPF em /usuarios
+if(file_exists($dadosArq)) {
+    $arq    = fopen($dadosArq, "r");
+    $linha  = fgets($arq, 1000);
+    fclose($arq);
+
+    $campos = explode("|", $linha);
+    $nome   = trim($campos[0]);
 }
 
-// ── Cria pasta /vendas se não existir ──
+// Cria pasta /vendas se não existir
 $vendasDir = dirname(__DIR__) . "/vendas";
-if (!is_dir($vendasDir)) {
-    mkdir($vendasDir, 0755, true);
-}
+if(!is_dir($vendasDir)) mkdir($vendasDir, 0755, true);
 
-// ── Gera número único da venda ──
+// Gera número único da venda
 $numeroVenda = strtoupper(substr(md5(uniqid(rand(), true)), 0, 8));
 
-// ── Monta os itens em texto ──
+// Monta os itens em texto
 $itensTexto = "";
-foreach ($dados['itens'] as $item) {
+foreach($dados['itens'] as $item) {
     $itensTexto .= "  - " . $item['nome'] .
-                   " | Qtd: " . $item['quantidade'] .
-                   " | Unit: R$ " . number_format($item['preco'], 2, ',', '.') .
+                   " | Qtd: "         . $item['quantidade'] .
+                   " | Unit: R$ "     . number_format($item['preco'],    2, ',', '.') .
                    " | Subtotal: R$ " . number_format($item['subtotal'], 2, ',', '.') . "\n";
 }
 
-// ── Conteúdo do arquivo .dat ──
-$conteudo = implode("\n", [
-    "VENDA: "          . $numeroVenda,
-    "DATA/HORA: "      . date("d/m/Y H:i:s"),
-    "USUARIO: "        . $nome,
-    "EMAIL: "          . $email,
-    "PAGAMENTO: "      . ($dados['pagamento'] ?? 'Não informado'),
-    "TOTAL: R$ "       . number_format($dados['total'], 2, ',', '.'),
-    "ITENS:",
-    rtrim($itensTexto),
-    str_repeat("-", 40)
-]);
+// Monta o conteúdo do arquivo
+$conteudo = "VENDA: "     . $numeroVenda                                          . "\n" .
+            "DATA/HORA: " . date("d/m/Y H:i:s")                                   . "\n" .
+            "USUARIO: "   . $nome                                                  . "\n" .
+            "EMAIL: "     . $email                                                 . "\n" .
+            "PAGAMENTO: " . $dados['pagamento']                                    . "\n" .
+            "TOTAL: R$ "  . number_format($dados['total'], 2, ',', '.')            . "\n" .
+            "ITENS:"                                                               . "\n" .
+            rtrim($itensTexto)                                                     . "\n" .
+            str_repeat("-", 40);
 
-// ── Salva o arquivo ──
-$arquivo = $vendasDir . "/" . $numeroVenda . ".dat";
-file_put_contents($arquivo, $conteudo);
+// Salva o arquivo da venda
+$arq2 = fopen($vendasDir . "/" . $numeroVenda . ".dat", "w");
+fwrite($arq2, $conteudo);
+fclose($arq2);
 
-echo json_encode([
-    'sucesso'      => true,
-    'numero_venda' => $numeroVenda
-]);
+echo "ok|" . $numeroVenda;
 ?>
-

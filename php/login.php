@@ -1,39 +1,43 @@
 <?php
-// Inicia a sessão para armazenar dados entre páginas
-session_start();
-
-// puxa get e post tlgd
+if(!isset($_SESSION)) session_start();
 extract($_REQUEST);
 
-// Caminho absoluto para a pasta de usuários
-$usuariosDir = dirname(__DIR__) . "/usuarios";
-if (!is_dir($usuariosDir)) {
-    mkdir($usuariosDir, 0755, true);
-}
+// Caminho da pasta de login
+$loginDir = dirname(__DIR__) . "/login";
 
-// Login: Acessa usando email e senha
+// Login: verifica email e senha em /login
 if(isset($acessar)) {
-    $pass = "";
-    $nome = $usuariosDir . "/" . $email . ".dat";
+    $pass      = 0;
+    $cpfUser   = "";
+    $loginFile = $loginDir . "/" . $email . ".dat";
 
-    // Lê o arquivo com a senha hash
-    if(file_exists($nome)) {
-        $arq = fopen($nome, "r");
-        $pass = fgets($arq, 1000);
+    // Lê o arquivo de login se existir
+    if(file_exists($loginFile)) {
+        $arq   = fopen($loginFile, "r");
+        $linha = trim(fgets($arq, 1000));
         fclose($arq);
+
+        // Arquivo guarda "md5|cpf"
+        $partes  = explode("|", $linha);
+        $pass    = trim($partes[0]);
+        $cpfUser = trim($partes[1]);
     }
 
-    // Verifica se a senha está correta usando password_verify
-    if (password_verify($senha, $pass)) {
-        // Cria sessão de usuário autenticado
+    // Compara o md5 da senha digitada com o salvo
+    if(md5($senha) == $pass) {
+        // Login ok, salva email e cpf na sessão
         $_SESSION['usuario_email'] = $email;
-        
+        $_SESSION['usuario_cpf']   = $cpfUser;
         header('Location: ../main.html');
         exit;
     } else {
+        // Senha ou usuário errado, volta pro login
         header('Location: ../login.html');
         exit;
     }
 }
+
+// Se acessar não foi enviado, volta pro login
+header('Location: ../login.html');
+exit;
 ?>
- 
