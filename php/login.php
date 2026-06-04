@@ -5,7 +5,7 @@ extract($_REQUEST);
 // Caminho da pasta de login
 $loginDir = dirname(__DIR__) . "/login";
 
-// Login: verifica email e senha em /login
+// Login: verifica email e senha na pastd /login
 if(isset($acessar)) {
     $pass      = 0;
     $cpfUser   = "";

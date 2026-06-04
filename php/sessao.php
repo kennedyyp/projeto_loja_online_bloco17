@@ -1,7 +1,7 @@
 <?php
 if(!isset($_SESSION)) session_start();
 
-// Não está logado — manda pro login
+// Não está logado  manda pro login
 if(!isset($_SESSION['usuario_email'])) {
     echo "login";
     exit;
@@ -13,7 +13,7 @@ $usuariosDir = dirname(__DIR__) . '/usuarios';
 $dadosArq    = $usuariosDir . '/' . $cpf . '.dat';
 $nome        = $email;
 
-// Lê o nome no arquivo do CPF em /usuarios
+// Lê o nome no arquivo  em /usuarios
 if(file_exists($dadosArq)) {
     $arq    = fopen($dadosArq, "r");
     $linha  = fgets($arq, 1000);

@@ -2,14 +2,14 @@
 if (!isset($_SESSION)) session_start();
 extract($_REQUEST);
 
-// Cria as pastas separadas como o professor pediu
+// Cria as pastas 
 $usuariosDir = dirname(__DIR__) . "/usuarios";
 if (!is_dir($usuariosDir)) mkdir($usuariosDir, 0755, true);
 
 $loginDir = dirname(__DIR__) . "/login";
 if (!is_dir($loginDir)) mkdir($loginDir, 0755, true);
 
-// Etapa 1: salva dados pessoais na sessão e em /usuarios pelo CPF
+// Etapa 1: salva dados pessoais na sessão e na pasta /usuarios com o cpf como nome
 if (isset($salvar1)) {
 
     // Validação do CPF
@@ -60,7 +60,7 @@ if (isset($salvar1)) {
     $_SESSION['cad_estado']   = $estado;
     $_SESSION['cad_cep']      = $cep;
 
-    // Salva dados pessoais em /usuarios pelo CPF
+    // Salva dados pessoais na pasta /usuarios
     $arq = fopen($usuariosDir . "/" . $cpf . ".dat", "w");
     fwrite($arq, $nome_completo . "|" . $cpf . "|" . $endereco . "|" . $bairro . "|" . $cidade . "|" . $estado . "|" . $cep);
     fclose($arq);
@@ -69,7 +69,7 @@ if (isset($salvar1)) {
     exit;
 }
 
-// Etapa 2: salva email e senha em /login
+// Etapa 2: salva o email ea senha na pasta /login email fica no nome
 if (isset($salvar2)) {
 
     $loginFile = $loginDir . "/" . $email . ".dat";
@@ -136,7 +136,7 @@ if(isset($atualizar)) {
     $cpf      = $_SESSION['usuario_cpf'];
     $dadosArq = $usuariosDir . "/" . $cpf . ".dat";
 
-    // Lê o nome atual pra manter o CPF intacto
+    // Lê o nome atual pra manter o CPF inicial
     $arq    = fopen($dadosArq, "r");
     $linha  = trim(fgets($arq, 1000));
     fclose($arq);
@@ -177,12 +177,12 @@ if (isset($deletar)) {
     $loginFile   = $loginDir . "/" . $email . ".dat";
     $usuarioFile = $usuariosDir . "/" . $cpf . ".dat";
 
-    // Remove arquivo de login
+    // Remove arquivo da pasta de login
     if (file_exists($loginFile)) {
         unlink($loginFile);
     }
 
-    // Remove dados do usuário
+    // Remove dados da pasta usuário
     if (file_exists($usuarioFile)) {
         unlink($usuarioFile);
     }

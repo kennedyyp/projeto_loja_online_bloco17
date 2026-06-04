@@ -1,13 +1,13 @@
 <?php
 if(!isset($_SESSION)) session_start();
 
-// Precisa estar logado
+// se não tive logado vai pra login
 if(!isset($_SESSION['usuario_email'])) {
     header('Location: ../login.html');
     exit;
 }
 
-// Lê o JSON enviado pelo JS
+// Lê o JSON enviado pelo JS 
 $body  = file_get_contents("php://input");
 $dados = json_decode($body, true);
 
@@ -23,7 +23,7 @@ $usuariosDir = dirname(__DIR__) . "/usuarios";
 $dadosArq    = $usuariosDir . "/" . $cpf . ".dat";
 $nome        = $email;
 
-// Lê o nome no arquivo do CPF em /usuarios
+// Lê o nome no arquivo n pARTaa /usuarios
 if(file_exists($dadosArq)) {
     $arq    = fopen($dadosArq, "r");
     $linha  = fgets($arq, 1000);

@@ -92,7 +92,7 @@ function adicionarAoCarrinho(idProduto) {
   mostrarFeedback(produto.nome + " adicionado ao carrinho!")
 }
 
-/* Renderiza a tabela do carrinho */
+/* Renderiza a tabela do carrinho tlgd*/
 function renderizarCarrinho() {
   const tbody = document.querySelector("tbody")
   if (!tbody) return
@@ -264,20 +264,20 @@ document.addEventListener("DOMContentLoaded", () => {
   iniciarCupom()
 })
 
-/* ── Confirmação de pedido ── */
+/* Confirmação do pedido  */
 
 const PARCELAS_CONF    = 12
 let pagamentoSelecionado = "PIX"
 let usuarioLogado        = null
 
-// Marca a opção de pagamento selecionada
+// Marca a opção de pagamento selecionada mas so tem uma msm kk
 function selectPayment(el) {
   document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'))
   el.classList.add('selected')
   pagamentoSelecionado = el.querySelector('input[type=radio]').value
 }
 
-// Clicou em "Finalizar compra" — verifica login antes de ir pra confirmação
+// Clicou em "Finalizar compra" verifica login antes de ir pra confirmação
 function irParaConfirmacao() {
   const carrinho = lerCarrinho()
   if (carrinho.length === 0) {
@@ -313,7 +313,7 @@ function voltarCarrinho() {
   document.getElementById("secaoCarrinho").style.display    = "block"
 }
 
-// Preenche a tabela de confirmação com os itens do carrinho
+// Preenche a tabela de confirmação com os itens du carrinho
 function renderizarConfirmacao() {
   const tbody     = document.getElementById("tbodyConfirmacao")
   const totalEl   = document.getElementById("totalConfirmacao")
