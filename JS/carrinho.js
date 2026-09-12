@@ -48,7 +48,7 @@ const CATALOGO = [
    Area dos cupons
    0.10 = 10% de desconto, 0.20 = 20%, etc. */
 const CUPONS = {
-  "KENNY": 0.20
+  "17": 0.20
 }
 
 /* 
@@ -368,7 +368,7 @@ function exibirUsuario(dados) {
   `
 }
 
-// Envia o pedido para o PHP salvar o arquivo .dat
+// Envia o pedido para o PHP salvar e salva no banco de dados, depois limpa o carrinho e volta para a tela principal
 function confirmarPedido() {
   const carrinho = lerCarrinho()
   if (carrinho.length === 0) {
@@ -386,7 +386,9 @@ function confirmarPedido() {
     }
   })
 
-  const totalNum = itens.reduce((acc, i) => acc + i.subtotal, 0)
+ const subtotalGeral = itens.reduce((acc, i) => acc + i.subtotal, 0)
+
+ const totalNum = subtotalGeral * (1 - descontoAtivo)
 
   fetch("php/salvar_venda.php", {
     method:  "POST",

@@ -1,43 +1,100 @@
 <?php
-if(!isset($_SESSION)) session_start();
-extract($_REQUEST);
 
-// Caminho da pasta de login
-$loginDir = dirname(__DIR__) . "/login";
+if (!isset($_SESSION)) {
+    session_start();
+}
 
-// Login: verifica email e senha na pastd /login
-if(isset($acessar)) {
-    $pass      = 0;
-    $cpfUser   = "";
-    $loginFile = $loginDir . "/" . $email . ".dat";
+extract($_POST);
 
-    // Lê o arquivo de login se existir
-    if(file_exists($loginFile)) {
-        $arq   = fopen($loginFile, "r");
-        $linha = trim(fgets($arq, 1000));
-        fclose($arq);
+require_once "conex.php";
 
-        // Arquivo guarda "md5|cpf"
-        $partes  = explode("|", $linha);
-        $pass    = trim($partes[0]);
-        $cpfUser = trim($partes[1]);
-    }
 
-    // Compara o md5 da senha digitada com o salvo
-    if(md5($senha) == $pass) {
-        // Login ok, salva email e cpf na sessão
-        $_SESSION['usuario_email'] = $email;
-        $_SESSION['usuario_cpf']   = $cpfUser;
-        header('Location: ../main.html');
-        exit;
+/*
+ Login: verifica email e senha no MySQL
+*/
+
+if (isset($acessar)) {
+
+    /*
+     Procura o usuário pelo email
+    */
+
+    $sql = "
+        SELECT id, cpf, email, senha
+        FROM usuarios
+        WHERE email = ?
+    ";
+
+    $stmt = $conn->prepare($sql);
+
+    $stmt->bind_param("s", $email);
+
+    $stmt->execute();
+
+    $resultado = $stmt->get_result();
+
+
+    /*
+     Verifica se encontrou o usuário
+    */
+
+    if ($resultado->num_rows > 0) {
+
+        $usuario = $resultado->fetch_assoc();
+
+
+        /*
+         Verifica se a senha digitada corresponde
+         ao hash salvo no banco
+        */
+
+        if (password_verify($senha, $usuario['senha'])) {
+
+            /*
+             Login correto:
+             salva os dados principais na sessão
+            */
+
+            $_SESSION['usuario_id']    = $usuario['id'];
+            $_SESSION['usuario_email'] = $usuario['email'];
+            $_SESSION['usuario_cpf']   = $usuario['cpf'];
+
+
+            /*
+             Redireciona para página principal
+            */
+
+            header('Location: ../main.html');
+            exit;
+
+        } else {
+
+            /*
+             Senha incorreta
+            */
+
+            header('Location: ../login.html');
+            exit;
+        }
+
     } else {
-        // Senha ou usuário errado, volta pro login
+
+        /*
+         Email não encontrado
+        */
+
         header('Location: ../login.html');
         exit;
     }
 }
 
-// Se acessar não foi enviado, volta pro login
+
+/*
+ Se o formulário não enviou "acessar",
+ volta para o login
+*/
+
 header('Location: ../login.html');
 exit;
+
 ?>

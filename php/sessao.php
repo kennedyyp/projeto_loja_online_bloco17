@@ -1,28 +1,51 @@
 <?php
-if(!isset($_SESSION)) session_start();
 
-// Não está logado  manda pro login
-if(!isset($_SESSION['usuario_email'])) {
+if (!isset($_SESSION)) {
+    session_start();
+}
+
+require_once "conex.php";
+
+
+// Não está logado
+if (!isset($_SESSION['usuario_email'])) {
     echo "login";
     exit;
 }
 
-$email       = $_SESSION['usuario_email'];
-$cpf         = $_SESSION['usuario_cpf'];
-$usuariosDir = dirname(__DIR__) . '/usuarios';
-$dadosArq    = $usuariosDir . '/' . $cpf . '.dat';
-$nome        = $email;
 
-// Lê o nome no arquivo  em /usuarios
-if(file_exists($dadosArq)) {
-    $arq    = fopen($dadosArq, "r");
-    $linha  = fgets($arq, 1000);
-    fclose($arq);
+$email = $_SESSION['usuario_email'];
 
-    $campos = explode('|', $linha);
-    $nome   = trim($campos[0]);
+
+// Busca o nome do usuário no MySQL
+$sql = "
+    SELECT nome_completo
+    FROM usuarios
+    WHERE email = ?
+";
+
+$stmt = $conn->prepare($sql);
+
+$stmt->bind_param("s", $email);
+
+$stmt->execute();
+
+$resultado = $stmt->get_result();
+
+
+$nome = $email;
+
+
+// Se encontrou o usuário, pega o nome
+if ($resultado->num_rows > 0) {
+
+    $usuario = $resultado->fetch_assoc();
+
+    $nome = $usuario['nome_completo'];
 }
 
-// Retorna ok|nome|email — lido pelo JS com split("|")
+
+// Retorna ok|nome|email
 echo "ok|" . $nome . "|" . $email;
+
 ?>

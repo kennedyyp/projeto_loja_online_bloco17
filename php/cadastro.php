@@ -1,17 +1,20 @@
 <?php
-if (!isset($_SESSION)) session_start();
-extract($_REQUEST);
 
-// Cria as pastas 
-$usuariosDir = dirname(__DIR__) . "/usuarios";
-if (!is_dir($usuariosDir)) mkdir($usuariosDir, 0755, true);
+if (!isset($_SESSION)) {
+    session_start();
+}
 
-$loginDir = dirname(__DIR__) . "/login";
-if (!is_dir($loginDir)) mkdir($loginDir, 0755, true);
+extract($_POST);
 
-// Etapa 1: salva dados pessoais na sessão e na pasta /usuarios com o cpf como nome
+require_once "conex.php";
+
+
+/*
+ Etapa 1: salva dados pessoais na sessão e verifica o CPF
+*/
+
 if (isset($salvar1)) {
-
+    $cep = preg_replace('/[^0-9]/', '', $cep);
     // Validação do CPF
     $cpf = preg_replace('/[^0-9]/', '', $cpf);
 
@@ -46,152 +49,302 @@ if (isset($salvar1)) {
         }
 
     } else {
+
         echo "CPF incorreto.<br/>";
         echo "<a href='../cadrastro1.html'>voltar</a>";
         exit;
     }
 
-    // CPF válido, salva na sessão
+
+    /*
+     Verifica se o CPF já está cadastrado no MySQL
+    */
+
+    $sql = "SELECT id FROM usuarios WHERE cpf = ?";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $cpf);
+    $stmt->execute();
+
+    $resultado = $stmt->get_result();
+
+    if ($resultado->num_rows > 0) {
+
+        echo "O CPF já está cadastrado.<br/>";
+        echo "<a href='../cadrastro1.html'>voltar</a>";
+        exit;
+    }
+
+
+    /*
+    Salva os dados da primeira etapa na sessão
+    */
+
     $_SESSION['cad_nome']     = $nome_completo;
     $_SESSION['cad_cpf']      = $cpf;
     $_SESSION['cad_endereco'] = $endereco;
+    $_SESSION['cad_numero']   = $numero;
     $_SESSION['cad_bairro']   = $bairro;
     $_SESSION['cad_cidade']   = $cidade;
     $_SESSION['cad_estado']   = $estado;
     $_SESSION['cad_cep']      = $cep;
 
-    // Salva dados pessoais na pasta /usuarios
-    $arq = fopen($usuariosDir . "/" . $cpf . ".dat", "w");
-    fwrite($arq, $nome_completo . "|" . $cpf . "|" . $endereco . "|" . $bairro . "|" . $cidade . "|" . $estado . "|" . $cep);
-    fclose($arq);
 
     header('Location: ../cadrastro2.html');
     exit;
 }
 
-// Etapa 2: salva o email ea senha na pasta /login email fica no nome
+
+/* 
+Etapa 2: salva email e senha no MySQL
+*/
+
 if (isset($salvar2)) {
 
-    $loginFile = $loginDir . "/" . $email . ".dat";
+    if (!isset($_SESSION['cad_cpf'])) {
 
-    if (file_exists($loginFile)) {
+        echo "A primeira etapa do cadastro não foi concluída.<br/>";
+        echo "<a href='../cadrastro1.html'>voltar</a>";
+        exit;
+    }
+
+
+    /*
+     Verifica se o email já existe
+    */
+
+    $sql = "SELECT id FROM usuarios WHERE email = ?";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+
+    $resultado = $stmt->get_result();
+
+    if ($resultado->num_rows > 0) {
+
         echo "O usuário já existe.<br/>";
         echo "<a href='../cadrastro2.html'>voltar</a>";
         exit;
     }
 
-    $arq = fopen($loginFile, "w");
-    fwrite($arq, md5($senha) . "|" . $_SESSION['cad_cpf']);
-    fclose($arq);
 
-    unset(
+    /*
+    Criptografa a senha
+    */
+
+    $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+
+
+    /*
+     Insere o usuário no banco
+    */
+
+    $sql = "
+        INSERT INTO usuarios
+        (
+            nome_completo,
+            cpf,
+            endereco,
+            numero,
+            bairro,
+            cidade,
+            estado,
+            cep,
+            email,
+            senha
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ";
+
+    $stmt = $conn->prepare($sql);
+
+    $stmt->bind_param(
+        "ssssssssss",
         $_SESSION['cad_nome'],
         $_SESSION['cad_cpf'],
         $_SESSION['cad_endereco'],
+        $_SESSION['cad_numero'],
         $_SESSION['cad_bairro'],
         $_SESSION['cad_cidade'],
         $_SESSION['cad_estado'],
-        $_SESSION['cad_cep']
+        $_SESSION['cad_cep'],
+        $email,
+        $senhaHash
     );
 
-    header('Location: ../login.html');
-    exit;
+
+    if ($stmt->execute()) {
+
+        unset(
+            $_SESSION['cad_nome'],
+            $_SESSION['cad_cpf'],
+            $_SESSION['cad_endereco'],
+            $_SESSION['cad_numero'],
+            $_SESSION['cad_bairro'],
+            $_SESSION['cad_cidade'],
+            $_SESSION['cad_estado'],
+            $_SESSION['cad_cep']
+        );
+
+        header('Location: ../login.html');
+        exit;
+
+    } else {
+
+        echo "Erro ao cadastrar usuário.<br/>";
+        echo "<a href='../cadrastro2.html'>voltar</a>";
+        exit;
+    }
 }
 
-// Login
+
+/*
+| Login
+*/
+
 if (isset($acessar)) {
 
-    $loginFile = $loginDir . "/" . $email . ".dat";
-    $pass = "";
-    $cpfUser = "";
+    $sql = "
+        SELECT id, cpf, email, senha
+        FROM usuarios
+        WHERE email = ?
+    ";
 
-    if (file_exists($loginFile)) {
-        $arq = fopen($loginFile, "r");
-        $linha = fgets($arq, 1000);
-        fclose($arq);
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
 
-        $partes = explode("|", $linha);
-        $pass = trim($partes[0]);
-        $cpfUser = trim($partes[1]);
-    }
+    $resultado = $stmt->get_result();
 
-    if (md5($senha) == $pass) {
-        $_SESSION['usuario_email'] = $email;
-        $_SESSION['usuario_cpf']   = $cpfUser;
-        header('Location: ../main.html');
+
+    if ($resultado->num_rows > 0) {
+
+        $usuario = $resultado->fetch_assoc();
+
+
+        if (password_verify($senha, $usuario['senha'])) {
+
+            $_SESSION['usuario_id']    = $usuario['id'];
+            $_SESSION['usuario_email'] = $usuario['email'];
+            $_SESSION['usuario_cpf']   = $usuario['cpf'];
+
+            header('Location: ../main.html');
+            exit;
+
+        } else {
+
+            header('Location: ../login.html');
+            exit;
+        }
+
     } else {
+
         header('Location: ../login.html');
+        exit;
     }
-    exit;
 }
 
-// Atualizar dados do usuário
-if(isset($atualizar)) {
 
-    if (!isset($_SESSION['usuario_email']) || !isset($_SESSION['usuario_cpf'])) {
+/*
+| Atualizar dados do usuário
+*/
+
+if (isset($atualizar)) {
+
+    if (
+        !isset($_SESSION['usuario_email']) ||
+        !isset($_SESSION['usuario_cpf'])
+    ) {
         header('Location: ../cadrastro1.html');
         exit;
     }
 
-    $cpf      = $_SESSION['usuario_cpf'];
-    $dadosArq = $usuariosDir . "/" . $cpf . ".dat";
 
-    // Lê o nome atual pra manter o CPF inicial
-    $arq    = fopen($dadosArq, "r");
-    $linha  = trim(fgets($arq, 1000));
-    fclose($arq);
+    $cpf = $_SESSION['usuario_cpf'];
 
-    $campos = explode("|", $linha);
-    $cpf_formatado = $campos[1];
 
-    // Salva os dados atualizados
-    $arq = fopen($dadosArq, "w");
-    fwrite(
-     $arq,
-     $nome_completo."|".
-     $cpf_formatado."|".
-     $endereco."|".
-     $bairro."|".
-     $cidade."|".
-     $estado."|".
-     $cep
-     );
+    $sql = "
+        UPDATE usuarios
+        SET
+            nome_completo = ?,
+            endereco = ?,
+            numero = ?,
+            bairro = ?,
+            cidade = ?,
+            estado = ?,
+            cep = ?
+        WHERE cpf = ?
+    ";
 
-    fclose($arq);
 
-    header('Location: conta.php?msg=atualizadu');
-    exit;
+    $stmt = $conn->prepare($sql);
+
+    $stmt->bind_param(
+        "ssssssss",
+        $nome_completo,
+        $endereco,
+        $numero,
+        $bairro,
+        $cidade,
+        $estado,
+        $cep,
+        $cpf
+    );
+
+
+    if ($stmt->execute()) {
+
+        header('Location: conta.php?msg=atualizadu');
+        exit;
+
+    } else {
+
+        echo "Erro ao atualizar os dados.<br/>";
+        echo "<a href='conta.php'>voltar</a>";
+        exit;
+    }
 }
 
-// Deletar usuário
+
+/*
+| Deletar usuário
+*/
+
 if (isset($deletar)) {
 
-        if (!isset($_SESSION['usuario_email']) || !isset($_SESSION['usuario_cpf'])) {
+    if (
+        !isset($_SESSION['usuario_email']) ||
+        !isset($_SESSION['usuario_cpf'])
+    ) {
         header('Location: ../login.html');
         exit;
     }
 
-    $email = $_SESSION['usuario_email'];
-    $cpf   = $_SESSION['usuario_cpf'];
 
-    $loginFile   = $loginDir . "/" . $email . ".dat";
-    $usuarioFile = $usuariosDir . "/" . $cpf . ".dat";
+    $cpf = $_SESSION['usuario_cpf'];
 
-    // Remove arquivo da pasta de login
-    if (file_exists($loginFile)) {
-        unlink($loginFile);
+
+    $sql = "DELETE FROM usuarios WHERE cpf = ?";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $cpf);
+
+
+    if ($stmt->execute()) {
+
+        session_unset();
+        session_destroy();
+
+        header('Location: ../login.html');
+        exit;
+
+    } else {
+
+        echo "Erro ao deletar usuário.<br/>";
+        echo "<a href='conta.php'>voltar</a>";
+        exit;
     }
-
-    // Remove dados da pasta usuário
-    if (file_exists($usuarioFile)) {
-        unlink($usuarioFile);
-    }
-
-    // Destroi a sessão
-    session_unset();
-    session_destroy();
-
-    header('Location: ../login.html');
-    exit;
 }
+
 ?>

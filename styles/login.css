@@ -169,6 +169,23 @@ img{
     color: var(--title-color);
 }
 
+select.login_input{
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 2rem; /* Espaço para o ícone de seta */
+    cursor: pointer;
+    border: none;
+    font-weight: 600;
+   
+
+}
+
+select.login_input option{
+    background-color: var(--container-color);
+    color: var(--title-color);
+}
+
 .login_input:focus + .login_label,
 .login_input:not(:placeholder-shown) + .login_label{
     opacity: 0;
