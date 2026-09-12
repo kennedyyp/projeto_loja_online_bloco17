@@ -1,7 +1,7 @@
 <?php 
 $server = "127.0.0.1";
 $user   = "root";
-$pass   = "REMOVIDO";
+$pass   = "";
 $db     = "Bloco17";
 
 $conn = new mysqli(
